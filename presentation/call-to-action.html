@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: A Call to Action</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #E2E8F0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: radial-gradient(circle, rgba(17,24,39,0) 0%, rgba(0,0,0,1) 70%);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+        @media (min-width: 1024px) {
+            .action-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .action-card {
+            background-color: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            display: flex;
+            flex-direction: column;
+        }
+        .action-card h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 1rem;
+        }
+        .action-card p {
+            color: #94A3B8;
+            font-size: 1rem;
+            line-height: 1.7;
+            flex-grow: 1;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #FBBF24;
+            color: #111827;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .action-button:hover {
+            background-color: #F59E0B;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.2);
+        }
+        .endorse-code {
+            background-color: #1E293B;
+            color: #FBBF24;
+            font-family: monospace;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="main-container">
+        <div class="header">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Universe is Not Silent. <br> It's Waiting for You to Listen.</h1>
+            <p class="text-lg md:text-xl text-slate-400">The DUST framework is not an endpoint. It is an invitation.</p>
+        </div>
+
+        <div class="action-grid">
+            <!-- Action 1: Read the Paper -->
+            <div id="action-1" class="action-card">
+                <h3>Read the Full Manuscript</h3>
+                <p>Dive into the complete, 117-page research paper. Explore the full derivations, the mathematical proofs, and the profound implications of a universe built from a single, unified source code.</p>
+                <a href="https://raw.githubusercontent.com/Spectral-Theory-STAR/DUST/main/unified-spectral-theory.pdf" class="action-button" target="_blank">Download the PDF</a>
+            </div>
+
+            <!-- Action 2: Endorse on arXiv -->
+            <div id="action-2" class="action-card">
+                <h3>Request for Endorsement</h3>
+                <p>For this theory to be formally debated and tested, it must be published on the scientific preprint server, arXiv. As independent researchers, we require an endorsement from an established physicist to post in the physics category. Your endorsement is the critical step to begin the process of formal peer review.</p>
+                <p class="mt-4"><strong>Endorsement Code:</strong></p>
+                <div class="endorse-code">OLU8Q3</div>
+                <a href="https://arxiv.org/auth/endorse?x=OLU8Q3" class="action-button" target="_blank">Endorse This Work</a>
+            </div>
+
+            <!-- Action 3: Get Involved -->
+            <div id="action-3" class="action-card">
+                <h3>Join the Revolution</h3>
+                <p>A theory of everything cannot be the work of two people alone. The Grand Challenges—from the formal proofs to the first experiments—require a global collaboration of the brightest and bravest minds. If you are a physicist, mathematician, engineer, or investor who is ready to help build this new reality, we want to hear from you.</p>
+                <a href="mailto:dinoducci@gmail.com" class="action-button">Get Involved</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        gsap.from(".header h1", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.5 });
+        gsap.from(".header p", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.8 });
+        
+        gsap.to("#action-1", { opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 1.5 });
+        gsap.to("#action-2", { opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 1.8 });
+        gsap.to("#action-3", { opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 2.1 });
+    });
+    </script>
+</body>
+</html>
