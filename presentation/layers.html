@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Pyramid of Proof</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #E2E8F0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .step-block {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(17, 24, 39, 0.7);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .step-block h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #94A3B8;
+        }
+        .step-block p {
+            font-size: 0.95rem;
+            color: #CBD5E1;
+            margin-top: 0.5rem;
+        }
+        .katex-display { font-size: 1.2em !important; }
+        .arrow {
+            font-size: 3rem;
+            color: #475569;
+            margin-bottom: 1rem;
+            opacity: 0;
+        }
+        .alert-block { border-color: #FBBF24; }
+        .alert-block h3 { color: #FBBF24; }
+        .example-block { border-color: #4ADE80; }
+        .example-block h3 { color: #4ADE80; }
+        .columns-container { display: flex; gap: 1rem; width: 100%; max-width: 800px; }
+        .column { flex: 1; }
+        .learn-more-btn {
+            margin-top: 1rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94A3B8;
+            background-color: #334155;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+            pointer-events: auto;
+        }
+        .learn-more-btn:hover { background-color: #475569; color: #FBBF24; }
+        
+        /* Modal Styles */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 40;
+            display: none;
+            opacity: 0;
+            pointer-events: auto;
+        }
+        #modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%;
+            max-width: 700px;
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border: 1px solid #FBBF24;
+            border-radius: 1rem;
+            padding: 2rem;
+            z-index: 50;
+            display: none;
+            opacity: 0;
+            color: #CBD5E1;
+            pointer-events: auto;
+        }
+        #modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: #64748B;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        #modal-close:hover { color: #FBBF24; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1 class="text-4xl font-black mb-2">The Unbroken Chain of Derivation</h1>
+        <p class="text-lg text-slate-400 mb-8">From a single line of code to a complete universe.</p>
+
+        <!-- Step 1 -->
+        <div id="step-1" class="step-block">
+            <div>
+                <h3>I. The Foundational Source Code: The Spectral Lagrangian ($\mathcal{L}_B$)</h3>
+                <p>The starting point for all reality. All subsequent results are a direct mathematical consequence of this single expression.</p>
+                <div class="mt-4">$\mathcal{L}_B = \bar{\Psi}_D(i\hbar\gamma^\mu D_\mu - m_D c)\Psi_D - \frac{1}{4}\left(1 - \frac{D}{D_0}\right)F_{\mu\nu}F^{\nu\mu} + \dots$</div>
+            </div>
+            <button class="learn-more-btn" data-step="1">Learn More</button>
+        </div>
+        <div id="arrow-1" class="arrow">&darr;</div>
+
+        <!-- Step 2 -->
+        <div id="step-2" class="step-block">
+            <div>
+                <h3>II. The Mathematical Toolkit: The Feynman Rules</h3>
+                <p>The Lagrangian is used to rigorously derive the propagators for all particles and the vertex factors for all interactions.</p>
+            </div>
+            <button class="learn-more-btn" data-step="2">Learn More</button>
+        </div>
+        <div id="arrow-2" class="arrow">&darr;</div>
+
+        <!-- Step 3 & 4 -->
+        <div class="columns-container">
+            <div class="column">
+                <div id="step-3" class="step-block alert-block h-full">
+                    <div>
+                        <h3>III. Rigorous QFT Calculation 1</h3>
+                        <p><strong>Anomalous Magnetic Moment ($a_e$)</strong></p>
+                        <div>$a_e = \frac{g_{\Psi D}^2}{12\pi^2}$</div>
+                    </div>
+                    <button class="learn-more-btn" data-step="3">Learn More</button>
+                </div>
+            </div>
+            <div class="column">
+                <div id="step-4" class="step-block alert-block h-full">
+                    <div>
+                        <h3>IV. Rigorous QFT Calculation 2</h3>
+                        <p><strong>Electron Mass ($m_e$)</strong></p>
+                        <div>$m_e = 3 m_D \left(1 + \frac{g_{\Psi D}^2}{4\pi}\right)$</div>
+                    </div>
+                    <button class="learn-more-btn" data-step="4">Learn More</button>
+                </div>
+            </div>
+        </div>
+        <div id="arrow-3" class="arrow">&darr;</div>
+
+        <!-- Step 5 -->
+        <div id="step-5" class="step-block">
+             <div>
+                <h3>V. The Completed Foundation: The Fundamental Constants</h3>
+                <p>Solving the system of equations yields the theory's definitive, non-heuristic foundational parameters.</p>
+                <div class="text-center text-xl font-bold mt-2">
+                    <span class="text-amber-400">$g_{\Psi D} \approx 0.3704$</span> and <span class="text-amber-400">$m_D \approx 0.168 \text{ MeV/c}^2$</span>
+                </div>
+            </div>
+            <button class="learn-more-btn" data-step="5">Learn More</button>
+        </div>
+        <div id="arrow-4" class="arrow">&darr;</div>
+
+        <!-- Step 6 -->
+        <div id="step-6" class="step-block example-block">
+            <div>
+                <h3>VI. The Triumphant Validations: The Great Unifications</h3>
+                <p>With the theory now complete, we perform the "Grand Challenge" calculations, which validate the phenomenally successful formulas for the constants of our universe.</p>
+                <ul class="list-disc list-inside mt-2 text-slate-300">
+                    <li>$\frac{1}{\alpha_{\text{true}}} = 8\pi \cdot (g_L + 1)$</li>
+                    <li>$X = (6\pi \cdot g_L) + \frac{1}{\phi}$</li>
+                    <li>$\alpha_s = \alpha_{em} \cdot \frac{12\pi^2}{e^2}$</li>
+                </ul>
+            </div>
+            <button class="learn-more-btn" data-step="6">Learn More</button>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="modal-overlay"></div>
+    <div id="modal-content">
+        <div id="modal-close">&times;</div>
+        <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
+        <div id="modal-body" class="text-slate-300 space-y-4"></div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const popupContent = {
+            "1": {
+                title: "The Spectral Lagrangian",
+                body: `<p>A Lagrangian is the most compact and powerful description of a physical system. The DUST Lagrangian is the theory's source code, containing all information about the fundamental fields (matter, force, vacuum) and their interactions.</p><p>Its terms define the kinetic energy of fields, their potential energy, and the rules of engagement. By applying the Principle of Least Spectral Action to this object, all of physics can be derived.</p>`
+            },
+            "2": {
+                title: "The Feynman Rules",
+                body: `<p>Feynman Rules are the practical toolkit derived from a Lagrangian. They are the 'grammar' of particle interactions.</p><p><b>Propagators</b> (lines in a diagram) describe how particles travel through spacetime. <b>Vertices</b> (junctions in a diagram) provide the precise mathematical formula for how particles interact and transform. These rules turn the abstract Lagrangian into a predictive engine.</p>`
+            },
+            "3": {
+                title: "Anomalous Magnetic Moment",
+                body: `<p>The anomalous magnetic moment ($a_e$) is a tiny quantum correction to an electron's magnetic field. It is the most precisely measured quantity in all of science.</p><p>In DUST, this anomaly is primarily caused by the electron's interaction with the Duality Field. This calculation is a critical first test, as it directly probes the interaction between matter and the vacuum.</p>`
+            },
+            "4": {
+                title: "Electron Mass",
+                body: `<p>In DUST, the electron is a composite of three Duccions. Its mass is not just the sum of its parts. It includes a crucial **self-energy correction** from the particle's interaction with its own Duality field.</p><p>This calculation proves that a particle's mass is an emergent property, determined by both its constituents and its relationship with the fabric of reality.</p>`
+            },
+            "5": {
+                title: "The Completed Foundation",
+                body: `<p>The two QFT calculations for $a_e$ and $m_e$ create a system of two independent equations with two unknown variables: the Ducci-Yukawa Coupling ($g_{\Psi D}$) and the Duccion Mass ($m_D$).</p><p>Solving this system algebraically allows us to determine the definitive values for the theory's foundational parameters. At this point, the theory has **no more free parameters**. Everything that follows is a direct prediction.</p>`
+            },
+            "6": {
+                title: "The Great Unifications",
+                body: `<p>With the foundational constants known, the theory can be fully validated. The "Grand Challenge" calculations, like deriving the vacuum's geometric constant ($g_L$), can be performed.</p><p>The triumphant result is that this single, complete theory can then predict the values of all the major constants of nature, from the strength of electromagnetism ($\alpha$) to the weakness of gravity ($X$), proving the deep unity of the cosmos.</p>`
+            }
+        };
+
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalClose = document.getElementById('modal-close');
+
+        function openModal(step) {
+            const content = popupContent[step];
+            modalTitle.textContent = content.title;
+            modalBody.innerHTML = content.body;
+            renderMathInElement(modalBody);
+            
+            modalOverlay.style.display = 'block';
+            modalContent.style.display = 'block';
+            gsap.to([modalOverlay, modalContent], { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' });
+        }
+
+        function closeModal() {
+            gsap.to([modalOverlay, modalContent], { 
+                opacity: 0, 
+                scale: 0.95, 
+                duration: 0.3, 
+                ease: 'power2.in',
+                onComplete: () => {
+                    modalOverlay.style.display = 'none';
+                    modalContent.style.display = 'none';
+                }
+            });
+        }
+
+        document.querySelectorAll('.learn-more-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openModal(btn.dataset.step);
+            });
+        });
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal);
+
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: "$$", right: "$$", display: true},
+                {left: "$", right: "$", display: false}
+            ]
+        });
+
+        const tl = gsap.timeline({defaults: { duration: 0.8, ease: "power2.out" }});
+        tl.to("#step-1", { opacity: 1, y: 0, delay: 0.5 })
+          .to("#arrow-1", { opacity: 1, duration: 0.5 })
+          .to("#step-2", { opacity: 1, y: 0 })
+          .to("#arrow-2", { opacity: 1, duration: 0.5 })
+          .to("#step-3", { opacity: 1, y: 0 }, "-=0.2")
+          .to("#step-4", { opacity: 1, y: 0 }, "<0.2")
+          .to("#arrow-3", { opacity: 1, duration: 0.5 })
+          .to("#step-5", { opacity: 1, y: 0 })
+          .to("#arrow-4", { opacity: 1, duration: 0.5 })
+          .to("#step-6", { opacity: 1, y: 0 });
+    });
+    </script>
+</body>
+</html>
