@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Duality Dial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3rem;
+            z-index: 10;
+        }
+        .header {
+            text-align: center;
+            width: 100%;
+        }
+        .footer {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            outline: none;
+            transition: background 0.3s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: #FBBF24;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid #1E293B;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.7);
+        }
+        .state-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: color 0.5s ease;
+        }
+        .info-panel {
+            margin-top: 1rem;
+            color: #94A3B8;
+            height: 60px; /* Fixed height to prevent layout shifts */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <div class="overlay">
+        <div class="header">
+            <h1 class="text-4xl md:text-5xl font-black">The Dial of Creation</h1>
+            <p class="text-lg md:text-xl text-slate-400 mt-2">DUST predicts that the state of reality is not fixed. It is a variable that can be controlled.</p>
+        </div>
+
+        <div class="footer">
+            <div class="state-label" id="state-label">Particle State</div>
+            <p class="info-panel" id="info-panel">A stable, low-energy state of localized matter. Its Duality ($D$) is 0.</p>
+            <input type="range" id="duality-dial" min="0" max="1" value="0" step="0.001" class="mt-4">
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        camera.position.z = 10;
+
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(5, 10, 7.5);
+        scene.add(dirLight);
+
+        // --- Particle & Wave Objects ---
+        // Particle (Solid Sphere)
+        const particleMat = new THREE.MeshStandardMaterial({ 
+            color: 0xFBBF24, 
+            emissive: 0x78350F, 
+            metalness: 0.9, 
+            roughness: 0.1 
+        });
+        const particle = new THREE.Mesh(new THREE.SphereGeometry(2, 128, 128), particleMat);
+        scene.add(particle);
+
+        // Wave (Point Cloud)
+        const waveGeo = new THREE.SphereGeometry(2, 64, 64);
+        const waveMat = new THREE.PointsMaterial({ 
+            color: 0x60A5FA, 
+            size: 0.05,
+            transparent: true,
+            opacity: 0
+        });
+        const wave = new THREE.Points(waveGeo, waveMat);
+        wave.userData.originalPositions = waveGeo.attributes.position.clone();
+        scene.add(wave);
+
+        // --- UI Elements ---
+        const dial = document.getElementById('duality-dial');
+        const stateLabel = document.getElementById('state-label');
+        const infoPanel = document.getElementById('info-panel');
+
+        // --- Animation & Interaction Logic ---
+        function updateState(dualityValue) {
+            const d = parseFloat(dualityValue);
+
+            // Morph between states
+            particleMat.opacity = 1 - d;
+            particleMat.transparent = d > 0;
+            waveMat.opacity = d;
+            
+            // Update Text
+            if (d < 0.1) {
+                stateLabel.innerText = "Particle State";
+                stateLabel.style.color = "#FBBF24";
+                infoPanel.innerText = "A stable, low-energy state of localized matter. Its Duality (D) is 0.";
+            } else if (d > 0.9) {
+                stateLabel.innerText = "Wave State";
+                stateLabel.style.color = "#60A5FA";
+                infoPanel.innerText = "An excited, high-energy state of pure potential. Its Duality (D) is 1.";
+            } else {
+                stateLabel.innerText = "Quantum Superposition";
+                stateLabel.style.color = "#E2E8F0";
+                infoPanel.innerText = `A hybrid state with a Duality (D) of ${d.toFixed(2)}.`;
+            }
+        }
+        
+        dial.addEventListener('input', (e) => updateState(e.target.value));
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Animate wave points
+            const positions = wave.geometry.attributes.position.array;
+            const originalPositions = wave.userData.originalPositions.array;
+            for(let i=0; i < positions.length; i+=3) {
+                const x = originalPositions[i];
+                const y = originalPositions[i+1];
+                const z = originalPositions[i+2];
+                const displacement = Math.sin(x * 1.5 + elapsedTime) * Math.cos(y * 1.5 + elapsedTime) * 0.5;
+                positions[i] = x * (1 + displacement);
+                positions[i+1] = y * (1 + displacement);
+                positions[i+2] = z * (1 + displacement);
+            }
+            wave.geometry.attributes.position.needsUpdate = true;
+            
+            particle.rotation.y += 0.001;
+            wave.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Initial animation
+        gsap.from(".header", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.5 });
+        gsap.from(".footer", { opacity: 0, y: 30, duration: 1.5, ease: "power2.out", delay: 1.0 });
+
+        // --- Handle window resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }, false);
+    });
+    </script>
+</body>
+</html>
