@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Duality Dial Experiment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .info-panel {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background-color: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-right: 1px solid #334155;
+            overflow-y: auto;
+            pointer-events: auto;
+        }
+        .info-panel h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #FBBF24;
+            margin-bottom: 1rem;
+        }
+        .info-panel h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #94A3B8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .info-panel p, .info-panel li {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #CBD5E1;
+        }
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.25rem 0;
+        }
+        .spec-item span:first-child { color: #94A3B8; }
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+            background: #334155; border-radius: 2px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 24px; height: 24px;
+            background: #FBBF24; cursor: pointer; border-radius: 50%;
+            border: 4px solid #111827; box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        .katex { font-size: 1.1em !important; }
+        .dynamic-value { color: #FBBF24; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <div class="overlay">
+        <div class="info-panel">
+            <h1>The Duality Dial</h1>
+            <p>An interactive simulation of the proposed experiment to provide definitive, falsifiable proof of the DUST theory.</p>
+
+            <h2>Objective</h2>
+            <p>To prove that a particle's Duality ($D$) is a controllable physical property by observing a resonant transition at a predicted frequency.</p>
+            
+            <h2>Specifications</h2>
+            <div class="spec-item"><span>Ion Trap Field:</span> <span>5 Tesla</span></div>
+            <div class="spec-item"><span>System Temp:</span> <span>~ 4 Kelvin</span></div>
+            <div class="spec-item"><span>DUST Prediction ($\nu_0$):</span> <span class="text-amber-400 font-bold">4.84 THz</span></div>
+
+            <h2>Theoretical Framework</h2>
+            <div id="math-display" class="font-mono text-sm space-y-3">
+                <p>$\Delta E = m_1 c^2 \approx 0.02 \text{ eV}$</p>
+                <p>$\nu_0 = \Delta E / h = <span id="freq-prediction-value" class="dynamic-value">4.84</span> \text{ THz}$</p>
+                <p>$D = \text{Strength} \times \max\left(0, 1 - \frac{|\nu - \nu_0|}{0.5}\right) = <span id="duality-calc-value" class="dynamic-value">0.000</span>$</p>
+            </div>
+
+            <h2>Experiment Controls</h2>
+            <div>
+                <label for="freq-slider" class="font-bold text-slate-300">Laser Frequency ($\nu$): <span id="freq-value" class="font-mono text-amber-400">4.00 THz</span></label>
+                <input type="range" id="freq-slider" min="4.0" max="6.0" value="4.0" step="0.01" class="mt-2">
+            </div>
+            <div class="mt-4">
+                <label for="field-slider" class="font-bold text-slate-300">Field Strength: <span id="field-value" class="font-mono text-amber-400">0%</span></label>
+                <input type="range" id="field-slider" min="0" max="1" value="0" step="0.01" class="mt-2">
+            </div>
+
+            <h2>Live Readout</h2>
+            <div class="mt-4 p-4 bg-black/20 rounded-lg">
+                <div class="spec-item"><span>Measured Duality (D):</span> <span id="duality-readout" class="text-green-400 font-bold">0.000</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+        
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 420) / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const container = document.getElementById('canvas-container');
+        if (container) {
+            renderer.setSize(window.innerWidth - 420, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.domElement.style.position = 'absolute';
+            renderer.domElement.style.right = '0';
+            container.appendChild(renderer.domElement);
+        }
+        camera.position.set(5, 5, 10);
+        camera.lookAt(0, 0, 0);
+
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0x404040, 2));
+        const pointLight = new THREE.PointLight(0xffffff, 1.5);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // --- Apparatus Models ---
+        const trapGroup = new THREE.Group();
+        const ringGeo = new THREE.TorusGeometry(3, 0.2, 16, 100);
+        const ringMat = new THREE.MeshStandardMaterial({color: 0x9CA3AF, metalness: 0.9, roughness: 0.2});
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        trapGroup.add(ring);
+        const capGeo = new THREE.SphereGeometry(2, 32, 16, 0, Math.PI * 2, 0, Math.PI / 4);
+        const capTop = new THREE.Mesh(capGeo, ringMat);
+        capTop.position.y = 2;
+        const capBottom = capTop.clone();
+        capBottom.rotation.x = Math.PI;
+        capBottom.position.y = -2;
+        trapGroup.add(capTop, capBottom);
+        scene.add(trapGroup);
+
+        const particleMat = new THREE.MeshStandardMaterial({color: 0xFBBF24, emissive: 0x78350F, metalness: 0.8, roughness: 0.1, transparent: true});
+        const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 64, 64), particleMat);
+        scene.add(particle);
+
+        const waveGeo = new THREE.SphereGeometry(2, 64, 64);
+        const waveMat = new THREE.PointsMaterial({color: 0x60A5FA, size: 0.05, transparent: true, opacity: 0});
+        const wave = new THREE.Points(waveGeo, waveMat);
+        wave.userData.originalPositions = waveGeo.attributes.position.clone();
+        scene.add(wave);
+
+        const beamGeo = new THREE.CylinderGeometry(0.05, 0.05, 20, 32);
+        const beamMat = new THREE.MeshBasicMaterial({color: 0xEF4444, transparent: true, opacity: 0});
+        const beam = new THREE.Mesh(beamGeo, beamMat);
+        beam.rotation.z = Math.PI / 2;
+        beam.position.x = -10;
+        scene.add(beam);
+
+        // --- UI & Interaction ---
+        const freqSlider = document.getElementById('freq-slider');
+        const fieldSlider = document.getElementById('field-slider');
+        const freqValue = document.getElementById('freq-value');
+        const fieldValue = document.getElementById('field-value');
+        const dualityReadout = document.getElementById('duality-readout');
+        const dualityCalcValue = document.getElementById('duality-calc-value');
+        
+        const DUST_RESONANCE = 4.84;
+
+        function updateSimulation() {
+            const freq = parseFloat(freqSlider.value);
+            const strength = parseFloat(fieldSlider.value);
+            
+            freqValue.textContent = `${freq.toFixed(2)} THz`;
+            fieldValue.textContent = `${(strength * 100).toFixed(0)}%`;
+
+            // Calculate resonance
+            const resonanceFactor = Math.max(0, 1 - Math.abs(freq - DUST_RESONANCE) / 0.5); // Sharper peak
+            const duality = strength * resonanceFactor;
+
+            // Update UI
+            dualityReadout.textContent = duality.toFixed(3);
+            dualityCalcValue.textContent = `${strength.toFixed(2)} \u00D7 ${resonanceFactor.toFixed(3)} = ${duality.toFixed(3)}`;
+            renderMathInElement(document.getElementById('math-display'));
+
+
+            if(duality > 0.95) {
+                dualityReadout.classList.remove('text-green-400');
+                dualityReadout.classList.add('text-amber-400');
+            } else {
+                dualityReadout.classList.add('text-green-400');
+                dualityReadout.classList.remove('text-amber-400');
+            }
+
+            // Update visuals
+            particle.material.opacity = 1 - duality;
+            wave.material.opacity = duality;
+            beam.material.opacity = strength * 0.7;
+
+            const beamColor = new THREE.Color().setHSL(0, 1, 0.5 + resonanceFactor * 0.2);
+            beam.material.color.set(beamColor);
+        }
+
+        freqSlider.addEventListener('input', updateSimulation);
+        fieldSlider.addEventListener('input', updateSimulation);
+        
+        // --- Render Loop ---
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            trapGroup.rotation.y += 0.002;
+            const elapsedTime = clock.getElapsedTime();
+            
+            if (wave.geometry.attributes.position) {
+                const positions = wave.geometry.attributes.position.array;
+                const originalPositions = wave.userData.originalPositions.array;
+                for(let i=0; i < positions.length; i+=3) {
+                    const x = originalPositions[i]; const y = originalPositions[i+1]; const z = originalPositions[i+2];
+                    const displacement = Math.sin(x * 1.5 + elapsedTime*2) * Math.cos(y * 1.5 + elapsedTime*2) * 0.5;
+                    positions[i] = x * (1 + displacement);
+                    positions[i+1] = y * (1 + displacement);
+                    positions[i+2] = z * (1 + displacement);
+                }
+                wave.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = (window.innerWidth - 420) / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth - 420, window.innerHeight);
+        });
+
+        // Initial update
+        updateSimulation();
+    });
+    </script>
+</body>
+</html>
