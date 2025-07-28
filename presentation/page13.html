@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: Deriving the Proton's Mass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 10vh;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            pointer-events: none;
+            text-align: center;
+            z-index: 10;
+        }
+        .text-content {
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            position: absolute;
+        }
+        .katex-display { font-size: 1.8em !important; }
+        .value {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #4ADE80;
+            text-shadow: 0 0 25px rgba(74, 222, 128, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <div class="overlay">
+        <!-- Step 1: The Problem -->
+        <div id="step-1" class="text-content">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Universe's Magic Ratio</h1>
+            <p class="text-lg md:text-xl text-slate-400">Why is a proton <span class="font-bold text-amber-400">1836.15</span> times heavier than an electron? This precise number dictates the structure of every atom, yet the Standard Model accepts it as a random accident.</p>
+        </div>
+
+        <!-- Step 2: The DUST Explanation -->
+        <div id="step-2" class="text-content">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-200 mb-6">DUST proves this ratio is not random. <br>It is a necessary consequence of geometry.</h2>
+            <p class="text-lg text-slate-400">The mass ratio emerges from the interaction between a proton's complex structure and the vacuum.</p>
+            <div class="text-3xl mt-6 p-4 bg-gray-900 bg-opacity-50 rounded-lg inline-block">
+                $\frac{m_p}{m_e} = \left(\frac{12\pi}{e}\right) \cdot \left(\frac{1}{\alpha_{\text{true}}}\right) \cdot \left(1 - \frac{\alpha_{IPF}}{2\pi}\right)$
+            </div>
+        </div>
+        
+        <!-- Step 3: The Calculation -->
+        <div id="step-3" class="text-content">
+             <p class="text-2xl text-amber-400 mb-4">This parameter-free formula, derived from the theory's first principles, predicts the ratio with stunning accuracy.</p>
+             <p class="value" id="final-value">1836.27</p>
+             <p class="text-lg text-slate-400 mt-4">(Matching the experimental value of 1836.15 with 99.99% accuracy)</p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        camera.position.set(0, 5, 35);
+        camera.lookAt(0, 0, 0);
+
+        // --- Starfield ---
+        const starGeo = new THREE.BufferGeometry();
+        const starVertices = [];
+        for(let i=0; i<10000; i++) { starVertices.push((Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300); }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const starMaterial = new THREE.PointsMaterial({color: 0x334155, size: 0.1});
+        const starfield = new THREE.Points(starGeo, starMaterial);
+        scene.add(starfield);
+
+        // --- Cosmic Scale ---
+        const scaleGroup = new THREE.Group();
+        scene.add(scaleGroup);
+
+        const beamMat = new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.9, roughness: 0.2 });
+        const fulcrumMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.3 });
+
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(24, 0.5, 0.5), beamMat);
+        const fulcrum = new THREE.Mesh(new THREE.ConeGeometry(2, 4, 32), fulcrumMat);
+        fulcrum.position.y = -2.25;
+        scaleGroup.add(beam, fulcrum);
+
+        const panGeo = new THREE.CylinderGeometry(3.5, 3.5, 0.2, 64);
+        const panLeft = new THREE.Mesh(panGeo, beamMat);
+        const panRight = new THREE.Mesh(panGeo, beamMat);
+        panLeft.position.x = -12;
+        panRight.position.x = 12;
+        beam.add(panLeft, panRight);
+
+        // --- Weights ---
+        const protonMat = new THREE.MeshStandardMaterial({ color: 0xFBBF24, emissive: 0x78350F, roughness: 0.4 });
+        const proton = new THREE.Mesh(new THREE.SphereGeometry(1.5, 64, 64), protonMat);
+        proton.position.y = 1.6;
+        panLeft.add(proton);
+
+        const electronCloud = new THREE.Group();
+        panRight.add(electronCloud);
+        const electronMat = new THREE.MeshStandardMaterial({ color: 0x60A5FA, emissive: 0x1E3A8A, roughness: 0.5 });
+        for(let i = 0; i < 500; i++) {
+            const electron = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), electronMat);
+            electron.position.set( (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4 + 2, (Math.random() - 0.5) * 4 );
+            electronCloud.add(electron);
+        }
+        
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const light1 = new THREE.PointLight(0xFBBF24, 2, 60);
+        light1.position.set(-12, 10, 10);
+        scene.add(light1);
+        const light2 = new THREE.PointLight(0x60A5FA, 2, 60);
+        light2.position.set(12, 10, 10);
+        scene.add(light2);
+
+        // --- Animation ---
+        function runAnimation() {
+            const tl = gsap.timeline({ defaults: { duration: 2, ease: "power2.inOut" } });
+
+            // Initial unbalanced state
+            gsap.set(beam.rotation, { z: 0.1 });
+            gsap.set(panRight.position, { y: 2 });
+            gsap.set(panLeft.position, { y: -2 });
+
+            tl.to("#step-1", { opacity: 1, y: 0, delay: 1 })
+              .to("#step-1", { opacity: 0, y: -20, delay: 5 })
+              
+              .to("#step-2", { opacity: 1, y: 0 })
+              .to("#step-2", { opacity: 0, y: -20, delay: 6 })
+
+              .to("#step-3", { opacity: 1, y: 0 })
+              .to(beam.rotation, { z: 0, duration: 4, ease: "elastic.out(1, 0.5)" }, "-=1.5")
+              .to(panRight.position, { y: 0, duration: 4, ease: "elastic.out(1, 0.5)" }, "<")
+              .to(panLeft.position, { y: 0, duration: 4, ease: "elastic.out(1, 0.5)" }, "<");
+        }
+        runAnimation();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            starfield.rotation.y -= 0.00003;
+            electronCloud.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    });
+    </script>
+</body>
+</html>
