@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Observer Effect</title>
+    <script src="https://cdn/tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            pointer-events: none;
+            text-align: center;
+            z-index: 10;
+        }
+        .text-content {
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            position: absolute;
+            transform: translateY(20px);
+        }
+        .value-display {
+            font-size: 5rem;
+            font-weight: 900;
+            transition: color 0.5s ease;
+        }
+        .value-true { color: #4ADE80; text-shadow: 0 0 25px rgba(74, 222, 128, 0.6); }
+        .value-observed { color: #FBBF24; text-shadow: 0 0 25px rgba(251, 191, 36, 0.6); }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <div class="overlay">
+        <!-- Step 1: Explain Alpha -->
+        <div id="step-1" class="text-content">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Universe's "Volume Knob"</h1>
+            <p class="text-lg md:text-xl text-slate-400">In all of science, there is a magic number: the fine-structure constant, approximately <span class="font-bold text-amber-400">1/137</span>. It dictates the strength of light and matter. If it were slightly different, the universe couldn't exist. <br><br>The Standard Model measures it perfectly, but has no explanation for it.</p>
+        </div>
+
+        <!-- Step 2: DUST Prediction -->
+        <div id="step-2" class="text-content">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-200 mb-6">DUST is the only theory to derive it from first principles.</h2>
+            <p class="text-lg text-slate-400">The theory predicts the true value, born from the vacuum's geometry, is:</p>
+            <p class="value-display value-true mt-4">135.09</p>
+        </div>
+        
+        <!-- Step 3: The Puzzle -->
+        <div id="step-3" class="text-content">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">This creates a puzzle.</h1>
+            <p class="text-lg md:text-xl text-slate-400">If the true value is <span class="font-bold text-green-400">135.09</span>, why have a century of experiments measured <span class="font-bold text-amber-400">137.036</span>?</p>
+        </div>
+
+        <!-- Step 4: The Explanation -->
+        <div id="step-4" class="text-content">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-200 mb-6">The Observer Effect of Duality</h2>
+             <p class="text-lg md:text-xl text-slate-400">The act of measurement is not a passive observation. <br>The energy of our experiments actively "dresses" the true value, altering the fabric of reality it seeks to probe.</p>
+        </div>
+        
+        <!-- Step 5: The Final Values -->
+        <div id="step-5" class="text-content">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                 <div>
+                     <p class="text-2xl text-green-400 font-bold mb-2">The True Value</p>
+                     <p class="value-display value-true" id="true-value">135.09</p>
+                     <p class="text-slate-400 mt-2">(The constant in a perfect, silent vacuum)</p>
+                 </div>
+                 <div>
+                     <p class="text-2xl text-amber-400 font-bold mb-2">The Observed Value</p>
+                     <p class="value-display value-observed" id="observed-value">135.09</p>
+                     <p class="text-slate-400 mt-2">(The constant inside an energized, "observed" vacuum)</p>
+                 </div>
+             </div>
+             <p class="text-lg md:text-xl text-slate-300 mt-12">The discrepancy isn't a failure of the theory. It's the theory's most powerful prediction.</p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        camera.position.z = 20;
+
+        // --- Prime Periodic Lattice ---
+        const latticeGroup = new THREE.Group();
+        const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x475569, transparent: true, opacity: 0.5 });
+        const nodeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const gridSize = 10;
+        const spacing = 3;
+
+        for (let x = -gridSize; x <= gridSize; x++) {
+            for (let y = -gridSize; y <= gridSize; y++) {
+                for (let z = -gridSize; z <= gridSize; z++) {
+                    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+                    node.position.set(x * spacing, y * spacing, z * spacing);
+                    node.userData.originalPos = node.position.clone();
+                    latticeGroup.add(node);
+                }
+            }
+        }
+        scene.add(latticeGroup);
+
+        // --- Observer Effect Visualizer (Lens) ---
+        const lensGeo = new THREE.TorusGeometry(3, 0.2, 16, 100);
+        const lensMat = new THREE.MeshBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0 });
+        const lens = new THREE.Mesh(lensGeo, lensMat);
+        lens.position.z = 15;
+        scene.add(lens);
+        
+        // --- Animation Logic ---
+        const clock = new THREE.Clock();
+        let warpFactor = { value: 0 };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+            
+            latticeGroup.rotation.y += 0.0005;
+            latticeGroup.rotation.x += 0.0002;
+            
+            // Animate lattice stretching
+            latticeGroup.children.forEach(node => {
+                const dist = node.userData.originalPos.length();
+                const stretch = 1 + warpFactor.value * Math.sin(dist * 0.5 - elapsedTime) * 0.1;
+                node.position.copy(node.userData.originalPos).multiplyScalar(stretch);
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- GSAP Animation ---
+        function runAnimation() {
+            const tl = gsap.timeline({ defaults: { duration: 1.5, ease: "power2.inOut" } });
+            const observedValueEl = document.getElementById('observed-value');
+            const observedValueObj = { val: 135.09 };
+
+            tl.to("#step-1", { opacity: 1, y: 0, delay: 1 })
+              .to("#step-1", { opacity: 0, y: -20, delay: 5 })
+              
+              .to("#step-2", { opacity: 1, y: 0 })
+              .to("#step-2", { opacity: 0, y: -20, delay: 5 })
+              
+              .to("#step-3", { opacity: 1, y: 0 })
+              .to("#step-3", { opacity: 0, y: -20, delay: 5 })
+
+              .to("#step-4", { opacity: 1, y: 0 })
+              .to(lens.material, { opacity: 0.8, duration: 2 }, "-=1")
+              .to(warpFactor, { value: 1.0, duration: 4, ease: "power2.inOut" }, "<")
+              .to("#step-4", { opacity: 0, y: -20, delay: 5 })
+              
+              .to("#step-5", { opacity: 1, y: 0 })
+              .to(observedValueObj, { 
+                  val: 137.036, 
+                  duration: 2.5, 
+                  ease: "power3.out",
+                  onUpdate: () => {
+                      observedValueEl.textContent = observedValueObj.val.toFixed(3);
+                  }
+              }, "-=1.5");
+        }
+        runAnimation();
+
+        // --- Handle window resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }, false);
+    });
+    </script>
+</body>
+</html>
