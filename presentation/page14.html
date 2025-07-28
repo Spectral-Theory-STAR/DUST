@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: Deriving the Speed of Light</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 10vh;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            pointer-events: none;
+            text-align: center;
+            z-index: 10;
+        }
+        .text-content {
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            position: absolute;
+            transform: translateY(20px);
+        }
+        .katex-display {
+            font-size: 2.5em !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <div class="overlay">
+        <!-- Step 1: The Problem -->
+        <div id="step-1" class="text-content">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Cosmic Speed Limit</h1>
+            <p class="text-lg md:text-xl text-slate-400">Why is the speed of light, <span class="font-bold text-amber-400">c</span>, the ultimate speed limit? <br><br> In modern physics, it's an unexplained axiom—a rule without a reason.</p>
+        </div>
+
+        <!-- Step 2: The DUST Explanation -->
+        <div id="step-2" class="text-content">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-200 mb-6">DUST proves reality is a computation. <br>The speed of light is its processing speed.</h2>
+            <p class="text-lg md:text-xl text-slate-400">Spacetime is not a smooth fabric; it's a discrete computational grid. Light doesn't travel through space; it is "processed," pixel by pixel, by the vacuum itself.</p>
+        </div>
+        
+        <!-- Step 3: The Science & Math -->
+        <div id="step-3" class="text-content">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-200 mb-6">The Derivation from First Principles</h2>
+            <p class="text-lg md:text-xl text-slate-400 mb-6">The maximum speed is one unit of distance per one unit of time. In our universe, these are the fundamental units of the Prime Periodic Lattice:</p>
+            <div class="text-4xl p-4 bg-gray-900 bg-opacity-50 rounded-lg inline-block">
+                $c = \frac{l_P}{t_P}$
+            </div>
+             <p class="text-md text-slate-400 mt-6">Where $l_P$ is the Planck Length (the "pixel size" of reality) and $t_P$ is the Planck Time (the "clock cycle" of the universe).</p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+        
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        camera.position.set(0, 5, 20);
+        camera.lookAt(0, 0, 0);
+
+        // --- Prime Periodic Lattice ---
+        const latticeGroup = new THREE.Group();
+        const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.3 });
+        const nodeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const gridSize = 12;
+        const spacing = 2;
+
+        for (let x = -gridSize; x <= gridSize; x++) {
+            for (let z = -gridSize; z <= gridSize; z++) {
+                const node = new THREE.Mesh(nodeGeometry, nodeMaterial.clone());
+                node.position.set(x * spacing, 0, z * spacing);
+                latticeGroup.add(node);
+            }
+        }
+        scene.add(latticeGroup);
+
+        // --- Light Pulse ---
+        const pulse = new THREE.Group();
+        scene.add(pulse);
+
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const core = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), coreMat);
+        pulse.add(core);
+
+        const glowMat = new THREE.SpriteMaterial({
+            map: createGlowTexture(),
+            color: 0xFBBF24,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            opacity: 0.8,
+            depthWrite: false,
+        });
+        const glow = new THREE.Sprite(glowMat);
+        glow.scale.set(2, 2, 1);
+        pulse.add(glow);
+        pulse.position.x = -gridSize * spacing;
+
+        function createGlowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0.1, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(0.4, 'rgba(251, 191, 36, 0.8)');
+            gradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 128, 128);
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        // --- Lighting ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pulse.add(pointLight);
+
+        // --- Animation ---
+        function runAnimation() {
+            const tl = gsap.timeline({ defaults: { duration: 1.5, ease: "power2.inOut" } });
+
+            tl.to("#step-1", { opacity: 1, y: 0, delay: 1 })
+              .to("#step-1", { opacity: 0, y: -20, delay: 4 })
+              
+              .to("#step-2", { opacity: 1, y: 0 })
+              .to(pulse.position, {
+                  x: gridSize * spacing,
+                  duration: 8,
+                  ease: "none",
+                  repeat: -1,
+                  yoyo: true
+              }, "-=1.5")
+               .to("#step-2", { opacity: 0, y: -20, delay: 5 })
+               
+              .to("#step-3", { opacity: 1, y: 0 });
+        }
+        runAnimation();
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Make nodes near the pulse light up
+            latticeGroup.children.forEach(node => {
+                const dist = node.position.distanceTo(pulse.position);
+                const pulseEffect = Math.max(0, 1 - dist / 5);
+                node.material.opacity = 0.3 + pulseEffect * 0.7;
+                node.material.color.setHex(pulseEffect > 0.1 ? 0xFBBF24 : 0x334155);
+            });
+            
+            glow.rotation.z = -elapsedTime * 0.5;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    });
+    </script>
+</body>
+</html>
