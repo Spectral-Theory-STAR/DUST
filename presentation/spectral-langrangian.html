@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Source Code of Reality</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #E2E8F0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .scroll-container {
+            width: 100%;
+        }
+        .intro-section, .outro-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #pin-container {
+            height: 400vh; /* 4 sections */
+            width: 100%;
+        }
+        #equation-container {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .lagrangian-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 1rem;
+            transform: scale(0.9);
+        }
+        .lagrangian-term, .lagrangian-base {
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+            opacity: 0.2; /* Start dimmed */
+            color: #64748B;
+            transition: opacity 0.5s ease, color 0.5s ease;
+        }
+        .lagrangian-term.active {
+            opacity: 1;
+            color: #FDE68A;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        .explanation-container {
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 2rem;
+            min-height: 150px;
+            position: relative;
+        }
+        .explanation {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+        }
+        .explanation h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #FBBF24;
+            margin-bottom: 0.5rem;
+        }
+        .explanation p {
+            font-size: 1.25rem;
+            color: #94A3B8;
+        }
+        #canvas-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-background"></div>
+
+    <div class="scroll-container">
+        <div class="intro-section">
+            <h1 class="text-5xl md:text-6xl font-black text-glow">The Source Code of Reality</h1>
+            <p class="text-xl md:text-2xl text-slate-400 mt-4">A single equation, built from four fundamental rules.</p>
+            <p class="text-amber-400 mt-16 animate-pulse">Scroll Down to Begin</p>
+        </div>
+
+        <div id="pin-container">
+            <div id="equation-container">
+                <div class="lagrangian-wrapper">
+                    <div id="base" class="lagrangian-base">$\mathcal{L}_B =$</div>
+                    <div id="term-matter" class="lagrangian-term">$\overline{\Psi}_{D}(i\hbar\gamma^{\mu}D_{\mu}-m_{D}c)\Psi_{D}$</div>
+                    <div id="term-force" class="lagrangian-term">$-\frac{1}{4}(1-\frac{D}{D_{0}})F_{\mu\nu}F^{\nu\mu}$</div>
+                    <div id="term-reality" class="lagrangian-term">$+\frac{1}{2}(\partial_{\mu}D)(\partial^{\mu}D) - V(D)$</div>
+                    <div id="term-interaction" class="lagrangian-term">$-g_{\Psi D}D\overline{\Psi}_{D}\Psi_{D}$</div>
+                </div>
+                <div class="explanation-container">
+                    <div id="expl-matter" class="explanation">
+                        <h2>The Rule for Matter</h2>
+                        <p>This defines the 'stuff' of the universe—the fundamental Duccion particles—their mass, and how they move.</p>
+                    </div>
+                    <div id="expl-force" class="explanation">
+                        <h2>The Rule for Forces</h2>
+                        <p>This governs the fundamental force. It includes a 'volume dial' that allows the vacuum itself to set the force's strength.</p>
+                    </div>
+                    <div id="expl-reality" class="explanation">
+                        <h2>The Rule for Reality</h2>
+                        <p>This describes the fabric of reality itself—the Duality Field. It is the rule that explains the Big Bang.</p>
+                    </div>
+                    <div id="expl-interaction" class="explanation">
+                        <h2>The Rule of Connection</h2>
+                        <p>This connects everything. It dictates how matter 'tells' reality how to bend (Gravity) and how reality 'tells' matter what to be.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="outro-section">
+            <h2 class="text-5xl font-black">A Unified System.</h2>
+            <p class="text-xl text-slate-400 mt-4">This is the engine of prediction. The blueprint for the universe.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                ]
+            });
+
+            // --- Three.js Background ---
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            const container = document.getElementById('canvas-background');
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            camera.position.z = 5;
+
+            const starGeo = new THREE.BufferGeometry();
+            const starVertices = [];
+            for(let i=0; i<6000; i++) {
+                starVertices.push(
+                    (Math.random() - 0.5) * 200,
+                    (Math.random() - 0.5) * 200,
+                    (Math.random() - 0.5) * 200
+                );
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({color: 0x475569, size: 0.05, transparent: true, opacity: 0.5});
+            const starfield = new THREE.Points(starGeo, starMaterial);
+            scene.add(starfield);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                starfield.rotation.y -= 0.00005;
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // --- GSAP Scroll Animation ---
+            gsap.registerPlugin(ScrollTrigger);
+
+            const terms = ['matter', 'force', 'reality', 'interaction'];
+            
+            // Set initial states
+            gsap.set('.explanation', { opacity: 0, y: 20 });
+            gsap.set('#base', { opacity: 1, color: '#94A3B8'});
+
+            const masterTimeline = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#pin-container",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1,
+                }
+            });
+
+            // Animation sequence for each term
+            terms.forEach((term, i) => {
+                const termEl = `#term-${term}`;
+                const explEl = `#expl-${term}`;
+
+                masterTimeline
+                    .to(termEl, { opacity: 1, color: '#FDE68A', textShadow: '0 0 10px rgba(251, 191, 36, 0.5)' }, `step${i}`)
+                    .to(explEl, { opacity: 1, y: 0 }, `step${i}`)
+                    .to(explEl, { opacity: 0, y: -20 }, `step${i}+=0.8`)
+                    .to(termEl, { opacity: 0.2, color: '#64748B', textShadow: 'none'}, `step${i}+=0.8`);
+            });
+        });
+    </script>
+</body>
+</html>
