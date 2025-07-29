@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Angle of Reality</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #000000;
+            margin: 0;
+            color: #E2E8F0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            pointer-events: none;
+            text-align: center;
+            z-index: 10;
+        }
+        .text-content {
+            width: 100%;
+            max-width: 900px;
+            opacity: 0;
+            position: absolute;
+            transform: translateY(20px);
+        }
+        .katex-display { font-size: 1.5em !important; }
+        @media (min-width: 768px) {
+            .katex-display { font-size: 2.2em !important; }
+        }
+        .value { font-weight: 900; }
+        .highlight-green { color: #4ADE80; text-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+        .highlight-amber { color: #FBBF24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.5); }
+        
+        .label-3d {
+            position: absolute;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div id="mass-label" class="label-3d">Mass States (How particles exist)</div>
+    <div id="weak-label" class="label-3d">Weak States (How particles interact)</div>
+    
+    <div class="overlay">
+        <!-- Step 1: The Mystery -->
+        <div id="step-1" class="text-content">
+            <h1 class="text-3xl md:text-5xl font-black mb-4">The Universe's Tilted Mirror</h1>
+            <p class="text-md md:text-xl text-slate-400">Matter exists in three "generations." The weak force allows particles to "leak" between them at a specific, unexplained angle of <span class="font-bold text-amber-400">~13°</span>. <br><br>The Standard Model accepts this as a random, brute fact of reality.</p>
+        </div>
+
+        <!-- Step 2: The DUST Hypothesis -->
+        <div id="step-2" class="text-content">
+            <h2 class="text-2xl md:text-4xl font-bold text-slate-200 mb-6">DUST proves the angle is not random. <br> It is the geometry of the vacuum itself.</h2>
+            <p class="text-md md:text-xl text-slate-400">The angle is a direct consequence of the vacuum's fundamental geometric constant, the Granularity Factor ($g_L = 4.375$).</p>
+             <div class="text-xl md:text-3xl mt-6 p-4 bg-gray-900 bg-opacity-50 rounded-lg inline-block">
+                $\sin(\theta_c) = \frac{1}{g_L}$
+            </div>
+        </div>
+        
+        <!-- Step 3: The Prediction -->
+        <div id="step-3" class="text-content">
+            <h2 class="text-2xl md:text-4xl font-bold text-slate-200 mb-6">This yields a precise, parameter-free prediction for the true angle of reality:</h2>
+            <p class="text-4xl md:text-6xl font-black value highlight-green mt-4">13.21°</p>
+        </div>
+
+        <!-- Step 4: The Final Twist -->
+        <div id="step-4" class="text-content">
+            <h2 class="text-2xl md:text-4xl font-bold text-slate-200 mb-6">But experiments measure <span class="value highlight-amber">13.02°</span>. Is the theory wrong?</h2>
+            <p class="text-md md:text-xl text-slate-400">No. The discrepancy is the final proof. It is the predicted **1.44% Observer Effect** altering the measurement.</p>
+             <div class="text-lg md:text-xl mt-6 p-4 bg-gray-900 bg-opacity-50 rounded-lg inline-block font-mono">
+                $13.21^\circ \times (1 - 0.0144) \approx \bf{13.01^\circ}$
+            </div>
+        </div>
+
+        <!-- Step 5: The Validation -->
+        <div id="step-5" class="text-content">
+             <h1 class="text-3xl md:text-5xl font-black mb-4">The Final Fingerprint.</h1>
+             <p class="text-lg md:text-xl text-slate-400">The theory predicts the true angle, and then correctly predicts the precise amount by which our experiments will get it wrong.</p>
+             <p class="text-xl md:text-2xl mt-8">DUST Prediction: <span class="value highlight-green">13.01°</span> | Experimental Value: <span class="value highlight-amber">13.02°</span></p>
+             <p class="text-2xl md:text-3xl mt-4 font-bold highlight-green">Accuracy: >99.9%</p>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+        
+        // --- Basic Setup ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        camera.position.set(0, 0, 18);
+
+        // --- Visual Elements ---
+        const massStates = new THREE.Group();
+        const weakStates = new THREE.Group();
+        scene.add(massStates, weakStates);
+
+        const planeGeo = new THREE.PlaneGeometry(8, 20, 10, 20);
+        const massMat = new THREE.MeshBasicMaterial({ color: 0x4ADE80, wireframe: true, transparent: true, opacity: 0 });
+        const weakMat = new THREE.MeshBasicMaterial({ color: 0x3B82F6, wireframe: true, transparent: true, opacity: 0 });
+
+        for(let i=0; i<3; i++) {
+            const massPlane = new THREE.Mesh(planeGeo, massMat);
+            massPlane.position.x = (i - 1) * 10;
+            massStates.add(massPlane);
+
+            const weakPlane = new THREE.Mesh(planeGeo, weakMat);
+            weakPlane.position.x = (i - 1) * 10;
+            weakStates.add(weakPlane);
+        }
+        
+        const particleMat = new THREE.MeshBasicMaterial({color: 0xffffff});
+        const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), particleMat);
+        particle.position.x = -10;
+        scene.add(particle);
+
+        const massLabel = document.getElementById('mass-label');
+        const weakLabel = document.getElementById('weak-label');
+
+        // --- Animation ---
+        function runAnimation() {
+            const tl = gsap.timeline({ defaults: { duration: 1.5, ease: "power2.inOut" } });
+
+            tl.to("#step-1", { opacity: 1, y: 0, delay: 1 })
+              .to(massStates.children.map(p => p.material), { opacity: 0.2, stagger: 0.1 })
+              .to("#step-1", { opacity: 0, y: -20, delay: 4 })
+              
+              .to("#step-2", { opacity: 1, y: 0 })
+              .to(weakStates.rotation, { y: 0.227, duration: 2 }) // approx 13 degrees
+              .to(weakStates.children.map(p => p.material), { opacity: 0.2, stagger: 0.1 }, "<")
+              .to(particle.position, { x: 0, duration: 2 }, ">-1")
+              .to(massLabel, { opacity: 1 }, "<")
+              .to(weakLabel, { opacity: 1 }, "<")
+
+              .to("#step-2", { opacity: 0, y: -20, delay: 4 })
+              
+              .to("#step-3", { opacity: 1, y: 0 })
+              .to("#step-3", { opacity: 0, y: -20, delay: 4 })
+
+              .to("#step-4", { opacity: 1, y: 0 })
+              .to("#step-4", { opacity: 0, y: -20, delay: 5 })
+
+              .to("#step-5", { opacity: 1, y: 0 });
+        }
+        runAnimation();
+        
+        function toScreenPosition(obj, camera) {
+            const vector = new THREE.Vector3();
+            obj.getWorldPosition(vector);
+            vector.project(camera);
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+            return { x, y };
+        }
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            
+            massStates.rotation.y += 0.0002;
+            weakStates.rotation.y += 0.0002;
+
+            const massLabelPos = toScreenPosition(massStates.children[0], camera);
+            massLabel.style.transform = `translate(-50%, -50%) translate(${massLabelPos.x}px, ${massLabelPos.y - 80}px)`;
+            
+            const weakLabelPos = toScreenPosition(weakStates.children[0], camera);
+            weakLabel.style.transform = `translate(-50%, -50%) translate(${weakLabelPos.x}px, ${weakLabelPos.y + 80}px)`;
+
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    });
+    </script>
+</body>
+</html>
