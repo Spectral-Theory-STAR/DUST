@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Five Ghosts in the Machine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Deep navy blue */
+            color: #E2E8F0;
+            overflow-x: hidden;
+            margin: 0;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            padding-top: 8rem;
+            padding-bottom: 4rem;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.9)), url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1500px;
+        }
+        
+        .info-card {
+            background-color: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .info-card h3 {
+            font-size: 1.25rem; font-weight: 700; color: #94A3B8; margin-bottom: 1rem;
+        }
+        .info-card .description {
+            color: #CBD5E1; font-size: 1rem; line-height: 1.6; flex-grow: 1;
+        }
+        .canvas-container {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            background: #020617;
+            overflow: hidden;
+        }
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+            z-index: 40; display: none; opacity: 0;
+        }
+        #modal-content {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%; max-width: 600px;
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border: 1px solid #FBBF24; border-radius: 1rem;
+            padding: 2rem; z-index: 50; display: none; opacity: 0;
+            color: #CBD5E1;
+        }
+        #modal-close {
+            position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
+            color: #64748B; cursor: pointer; transition: color 0.2s ease;
+        }
+        #modal-close:hover { color: #FBBF24; }
+    </style>
+</head>
+<body>
+    <div class="main-container" role="main">
+        <div class="header">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Five Ghosts in the Machine</h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">Modern science is the most successful intellectual project in human history. Yet, for all its power, it is haunted by foundational cracks—deep, unanswered questions that reveal our understanding of reality is profoundly incomplete.</p>
+        </div>
+
+        <div class="card-grid">
+            <!-- Cards will be populated by JS -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal-overlay"></div>
+    <div id="modal-content">
+        <div id="modal-close">&times;</div>
+        <h2 id="modal-title" class="text-3xl font-bold text-amber-400 mb-4"></h2>
+        <p id="modal-description" class="text-lg"></p>
+    </div>
+
+    <script>
+        const paradoxData = [
+            { id: 'duality', title: 'The Duality Paradox', short: 'A particle behaves as a point when measured but a wave when unobserved. The Standard Model offers no physical explanation.', full: 'Pioneered by Louis de Broglie in 1924 and formalized by the Copenhagen Interpretation, this paradox lies at the heart of quantum mechanics. It states that a fundamental entity like a photon or electron exhibits mutually exclusive properties—a localized particle and a distributed wave—depending on the experimental setup.' },
+            { id: 'measurement', title: 'The Measurement Paradox', short: 'Observation appears to randomly collapse a wave of probabilities into a single reality, implying a magical role for the observer.', full: "Formulated in the 1920s by Heisenberg and Bohr, the 'collapse of the wave function' has no physical mechanism in the Standard Model. It suggests that reality is indeterminate until an observer intervenes." },
+            { id: 'consciousness', title: 'The Consciousness Paradox', short: 'The “hard problem” asks why neural activity creates subjective experience, with no known bridge between brain and mind.', full: "Coined by philosopher David Chalmers in 1995, the 'hard problem' asks why the brain's objective information processing should be accompanied by subjective, qualitative experience. This gap between the physical and the mental remains the single greatest failure of a purely materialistic worldview." },
+            { id: 'cosmological', title: 'The Cosmological Crises', short: '“Dark Matter” and “Dark Energy” are placeholders for 95% of the universe that our models cannot explain.', full: "Since the observations of Vera Rubin (1970s) and the accelerating expansion (1998), cosmology has relied on these unknown entities. This is a profound admission that our current understanding of gravity and energy is fundamentally incomplete." },
+            { id: 'mathematical', title: 'The Mathematical Paradox', short: 'The “unreasonable effectiveness” of mathematics questions why abstract logic so perfectly describes the cosmos.', full: "A concept famously articulated by physicist Eugene Wigner in 1960. It questions why human-invented mathematics should be the language of the universe. It implies a hidden connection between the structure of the human mind and the structure of reality that science cannot explain." }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const cardGrid = document.querySelector('.card-grid');
+            
+            paradoxData.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'info-card';
+                card.dataset.id = p.id;
+                card.innerHTML = `
+                    <div class="canvas-container" id="canvas-${p.id}"></div>
+                    <h3>${p.title}</h3>
+                    <p class="description">${p.short}</p>
+                `;
+                cardGrid.appendChild(card);
+            });
+
+            gsap.from(".header h1", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.5 });
+            gsap.from(".header p", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.8 });
+            gsap.from(".info-card", { opacity: 0, y: 30, duration: 1, ease: "power2.out", stagger: 0.2, delay: 1.2 });
+
+            const overlay = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            document.querySelectorAll('.info-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const data = paradoxData.find(p => p.id === card.dataset.id);
+                    document.getElementById('modal-title').innerText = data.title;
+                    document.getElementById('modal-description').innerText = data.full;
+                    overlay.style.display = 'block';
+                    content.style.display = 'block';
+                    gsap.to([overlay, content], { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' });
+                });
+            });
+
+            function closeModal() {
+                gsap.to([overlay, content], { 
+                    opacity: 0, scale: 0.95, duration: 0.3, ease: 'power2.in',
+                    onComplete: () => {
+                        overlay.style.display = 'none';
+                        content.style.display = 'none';
+                    }
+                });
+            }
+            document.getElementById('modal-close').addEventListener('click', closeModal);
+            overlay.addEventListener('click', closeModal);
+
+            const scenes = {};
+            
+            function initAndAnimateScenes() {
+                function initScene(id) {
+                    const container = document.getElementById(`canvas-${id}`);
+                    if (!container) return null;
+                    const scene = new THREE.Scene();
+                    const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+                    camera.position.z = 5;
+                    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setPixelRatio(window.devicePixelRatio);
+                    container.appendChild(renderer.domElement);
+                    return { scene, camera, renderer, objects: {} };
+                }
+
+                paradoxData.forEach(p => {
+                    const sceneData = initScene(p.id);
+                    if (sceneData) scenes[p.id] = sceneData;
+                });
+            
+                // Duality Animation
+                if (scenes.duality) {
+                    const geo = new THREE.IcosahedronGeometry(1.5, 5);
+                    scenes.duality.objects.positions = geo.attributes.position.clone();
+                    const mat = new THREE.PointsMaterial({ color: 0xFBBF24, size: 0.05 });
+                    scenes.duality.objects.points = new THREE.Points(geo, mat);
+                    scenes.duality.scene.add(scenes.duality.objects.points);
+                }
+
+                // Measurement Animation
+                if(scenes.measurement){
+                    const points = [];
+                    for (let i = 0; i < 5000; i++) points.push((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8);
+                    const geo = new THREE.BufferGeometry();
+                    geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+                    const mat = new THREE.PointsMaterial({ color: 0x60A5FA, size: 0.03 });
+                    scenes.measurement.objects.cloud = new THREE.Points(geo, mat);
+                    scenes.measurement.objects.cloud.userData.isExpanding = true;
+                    scenes.measurement.scene.add(scenes.measurement.objects.cloud);
+                }
+
+                // Consciousness Animation
+                if(scenes.consciousness) {
+                    scenes.consciousness.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                    const light = new THREE.PointLight(0x4ADE80, 2, 20);
+                    light.position.set(0,0,3);
+                    scenes.consciousness.scene.add(light);
+                    const geo = new THREE.IcosahedronGeometry(1.5, 3);
+                    const mat = new THREE.MeshStandardMaterial({ color: 0x4ADE80, emissive: 0x166534, metalness: 0.7, roughness: 0.4, wireframe: true, transparent: true, opacity: 0.5 });
+                    scenes.consciousness.objects.field = new THREE.Mesh(geo, mat);
+                    scenes.consciousness.scene.add(scenes.consciousness.objects.field);
+                }
+
+                // Cosmological Animation
+                if(scenes.cosmological){
+                    const points = [];
+                    const colors = [];
+                    const centerColor = new THREE.Color(0xFBBF24);
+                    const armColor = new THREE.Color(0x9333EA);
+                    for(let i=0; i<10000; i++) {
+                        const r = Math.pow(Math.random(), 2) * 2.5;
+                        const spinAngle = r * 3;
+                        const randomAngle = Math.random() * Math.PI * 2;
+                        const x = Math.cos(randomAngle + spinAngle) * r;
+                        const y = Math.sin(randomAngle + spinAngle) * r;
+                        const z = (Math.random() - 0.5) * 0.1;
+                        points.push(x, y, z);
+                        const mixedColor = centerColor.clone().lerp(armColor, r/2.5);
+                        colors.push(mixedColor.r, mixedColor.g, mixedColor.b);
+                    }
+                    const geo = new THREE.BufferGeometry();
+                    geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+                    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                    const mat = new THREE.PointsMaterial({ size: 0.02, vertexColors: true, transparent: true, opacity: 0.8 });
+                    scenes.cosmological.objects.galaxy = new THREE.Points(geo, mat);
+                    scenes.cosmological.scene.add(scenes.cosmological.objects.galaxy);
+                }
+
+                // Mathematical Animation
+                if(scenes.mathematical){
+                    const points = [];
+                    let max = 300;
+                    const isPrime = num => {
+                        for(let i = 2, s = Math.sqrt(num); i <= s; i++) if(num % i === 0) return false; 
+                        return num > 1;
+                    }
+                    for(let i=1; i < max; i++){
+                        if(isPrime(i)){
+                            points.push(new THREE.Vector3(i * Math.cos(i) * 0.05, i * Math.sin(i) * 0.05, 0));
+                        }
+                    }
+                    const geo = new THREE.BufferGeometry().setFromPoints(points);
+                    const mat = new THREE.PointsMaterial({color: 0xEAB308, size:0.1});
+                    scenes.mathematical.objects.spiral = new THREE.Points(geo, mat);
+                    scenes.mathematical.scene.add(scenes.mathematical.objects.spiral);
+                }
+
+                const clock = new THREE.Clock();
+                function animate() {
+                    requestAnimationFrame(animate);
+                    const time = clock.getElapsedTime();
+
+                    if (scenes.duality && scenes.duality.objects.points) {
+                        const p = scenes.duality.objects.points;
+                        const positions = p.geometry.attributes.position;
+                        const originalPos = scenes.duality.objects.positions;
+                        const morph = (Math.sin(time * 0.8) + 1) / 2;
+                        for(let i=0; i<positions.count; i++) {
+                            const waveY = Math.sin(originalPos.getX(i) * 2 + time * 2) * 1.0;
+                            const sphereY = originalPos.getY(i);
+                            positions.setY(i, THREE.MathUtils.lerp(sphereY, waveY, morph));
+                        }
+                        positions.needsUpdate = true;
+                        p.rotation.y += 0.002;
+                    }
+                    
+                    if (scenes.measurement && scenes.measurement.objects.cloud) {
+                        const cloud = scenes.measurement.objects.cloud;
+                        cloud.rotation.y += 0.001;
+                        if(cloud.userData.isExpanding) {
+                            cloud.scale.multiplyScalar(1.01);
+                            if(cloud.scale.x > 1.5) cloud.userData.isExpanding = false;
+                        } else {
+                            cloud.scale.multiplyScalar(0.98);
+                            if(cloud.scale.x < 0.01) {
+                                cloud.position.set((Math.random()-0.5)*2, (Math.random()-0.5)*2, (Math.random()-0.5)*2);
+                                cloud.userData.isExpanding = true;
+                            }
+                        }
+                    }
+                    
+                    if (scenes.consciousness && scenes.consciousness.objects.field) {
+                        scenes.consciousness.objects.field.rotation.y += 0.005;
+                        scenes.consciousness.objects.field.material.opacity = 0.5 + Math.sin(time*2) * 0.2;
+                    }
+                    
+                    if (scenes.cosmological && scenes.cosmological.objects.galaxy) {
+                        scenes.cosmological.objects.galaxy.rotation.z -= 0.005;
+                    }
+
+                    if (scenes.mathematical && scenes.mathematical.objects.spiral) {
+                         scenes.mathematical.objects.spiral.rotation.z += 0.005;
+                    }
+
+                    for(const key in scenes) {
+                        if (scenes[key] && scenes[key].renderer) {
+                            scenes[key].renderer.render(scenes[key].scene, scenes[key].camera);
+                        }
+                    }
+                }
+                animate();
+            }
+            
+            initAndAnimateScenes();
+
+        });
+    </script>
+</body>
+</html>
