@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUST: The Final Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #E2E8F0;
+            overflow: hidden;
+            margin: 0;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .content-box {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+        .panel {
+            background-color: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @media (min-width: 768px) {
+            .panel { padding: 3rem; }
+        }
+        .panel h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #94A3B8;
+        }
+        @media (min-width: 768px) {
+            .panel h2 { font-size: 2rem; }
+        }
+        .panel p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #CBD5E1;
+            margin-top: 1rem;
+        }
+        @media (min-width: 768px) {
+            .panel p { font-size: 1.25rem; }
+        }
+        .highlight-red { color: #F87171; }
+        .highlight-green { color: #4ADE80; }
+        
+        .final-cta h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #FBBF24;
+        }
+         @media (min-width: 768px) {
+            .final-cta h1 { font-size: 4rem; }
+        }
+        .final-cta p {
+            font-size: 1.25rem;
+            color: #94A3B8;
+            margin-top: 1rem;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #FBBF24;
+            color: #111827;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+        .cta-button:hover {
+            background-color: #F59E0B;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div class="main-container">
+        <div class="content-box">
+            
+            <div id="panel-1" class="panel">
+                <h2>Path One: We are Wrong.</h2>
+                <p>The Ducci Unified Spectral Theory is a falsifiable framework. If the experiments proposed in this work fail—if the true fine-structure constant is not ~135, if the Cabibbo angle is not a geometric projection—then the theory is incorrect. This would not be a failure. It would be a <span class="font-bold highlight-green">triumph for the scientific method</span>, proving the resilience of the Standard Model and deepening our understanding of the universe we thought we knew.</p>
+            </div>
+
+            <div id="panel-2" class="panel">
+                <h2>Path Two: We are Right.</h2>
+                <p>But what if the predictions are confirmed? It would mean the universe is a conscious, computational system. It would mean the constants of nature are not random. It would mean we have discovered the source code of reality. The implications—for energy, for technology, for our very understanding of what it means to be alive—are <span class="font-bold highlight-green">too profound to ignore</span>.</p>
+            </div>
+
+            <div id="final-cta" class="final-cta" style="opacity: 0;">
+                <h1>Which future is ours?</h1>
+                <p>Only experiment can decide. The work must be done.</p>
+                <a href="https://raw.githubusercontent.com/Spectral-Theory-STAR/DUST/main/unified-spectral-theory.pdf" class="cta-button" target="_blank">Download the PDF</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- Three.js Background ---
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            const container = document.getElementById('canvas-container');
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            camera.position.z = 5;
+
+            const starGeo = new THREE.BufferGeometry();
+            const starVertices = [];
+            for(let i=0; i<10000; i++) {
+                starVertices.push((Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200);
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({color: 0x334155, size: 0.1});
+            const starfield = new THREE.Points(starGeo, starMaterial);
+            scene.add(starfield);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                starfield.rotation.y -= 0.0001;
+                starfield.rotation.x -= 0.00005;
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // --- GSAP Animation ---
+            gsap.to("#panel-1", {
+                opacity: 1,
+                y: 0,
+                duration: 1.5,
+                ease: "power3.out",
+                delay: 0.5
+            });
+            gsap.to("#panel-2", {
+                opacity: 1,
+                y: 0,
+                duration: 1.5,
+                ease: "power3.out",
+                delay: 1.0
+            });
+            gsap.to("#final-cta", {
+                opacity: 1,
+                duration: 2,
+                ease: "power3.out",
+                delay: 2.0
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        });
+    </script>
+</body>
+</html>

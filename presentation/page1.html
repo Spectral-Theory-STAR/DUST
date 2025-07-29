@@ -34,15 +34,16 @@
             align-items: center;
             text-align: center;
             pointer-events: none;
-            padding: 4rem 2rem;
+            padding: 2rem; /* Adjusted padding for mobile */
         }
-        .title-container {
-            width: 100%;
-            pointer-events: none;
+        @media (min-width: 768px) {
+            .overlay {
+                padding: 4rem 2rem;
+            }
         }
         .text-container {
             max-width: 900px;
-            padding: 2.5rem;
+            padding: 1.5rem; /* Adjusted padding for mobile */
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(10px);
             border-radius: 1rem;
@@ -50,23 +51,43 @@
             opacity: 0;
             transform: translateY(30px);
         }
+         @media (min-width: 768px) {
+            .text-container {
+                padding: 2.5rem;
+            }
+        }
         h1.main-title {
-            font-size: 3rem;
+            font-size: 2.5rem; /* Base size for mobile */
             line-height: 1.1;
             font-weight: 900;
-            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
             color: #FBBF24;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
         }
-         h2.subtitle {
-            font-size: 2rem;
+         @media (min-width: 768px) {
+            h1.main-title {
+                font-size: 4rem; /* Larger size for desktop */
+            }
+        }
+        h2.subtitle {
+            font-size: 1.5rem; /* Base size for mobile */
             line-height: 1.2;
             font-weight: 700;
             color: #E2E8F0;
         }
+         @media (min-width: 768px) {
+            h2.subtitle {
+                font-size: 2rem;
+            }
+        }
         p {
-            font-size: 1.2rem;
+            font-size: 1rem; /* Base size for mobile */
             color: #A1A1AA;
             margin-top: 1.5rem;
+        }
+         @media (min-width: 768px) {
+            p {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -75,11 +96,11 @@
     <div id="canvas-container"></div>
     <div class="overlay">
         <div class="title-container">
-            <h1 class="text-4xl md:text-5xl font-black text-slate-300">A New Physical Principle</h1>
+             <h1 class="text-3xl md:text-5xl font-black text-slate-300">A New Physical Principle</h1>
         </div>
         <div id="text-container" class="text-container">
-            <h2 class="subtitle">Is everything is a question of geometry and Duality?</h2>
-            <p>The Ducci Unified Spectral Theory (DUST): proposes that the paradoxes of modern physics are symptoms of a missing foundation. We present a new framework where the wave-particle nature of reality is a controllable state, and the constants of the Standard Model emerge as necessary consequences of a single, underlying geometric blueprint of the vacuum.</p>
+            <h2 class="subtitle">Is everything a question of geometry and Duality?</h2>
+            <p>The Ducci Unified Spectral Theory (DUST) proposes that the paradoxes of modern physics are symptoms of a missing foundation. We present a new framework where the wave-particle nature of reality is a controllable state, and the constants of the Standard Model emerge as necessary consequences of a single, underlying geometric blueprint of the vacuum.</p>
         </div>
     </div>
 
@@ -151,7 +172,7 @@
                         vec3 i1 = min( g.xyz, l.zxy );
                         vec3 i2 = max( g.xyz, l.zxy );
                         vec3 x1 = x0 - i1 + C.xxx;
-                        vec3 x2 = x0 - i2 + C.yyy; // -0.5 = 1.0 - 1.5
+                        vec3 x2 = x0 - i2 + C.yyy;
                         vec3 x3 = x0 - D.yyy;
                         i = mod289(i);
                         vec4 p = permute( permute( i.z + vec4(0.0, i1.z, i2.z, 1.0 )) + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) + i.x + vec4(0.0, i1.x, i2.x, 1.0 );
@@ -175,10 +196,7 @@
                         vec3 p2 = vec3(a1.xy,h.z);
                         vec3 p3 = vec3(a1.zw,h.w);
                         vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
-                        p0 *= norm.x;
-                        p1 *= norm.y;
-                        p2 *= norm.z;
-                        p3 *= norm.w;
+                        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
                         vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
                         m = m * m;
                         return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
@@ -186,15 +204,15 @@
                     void main() {
                         vec3 animatedNormal = normalize(position);
                         noise = snoise(animatedNormal * 2.5 + time * 0.4);
-                        vec3 displaced = position + animatedNormal * noise * 2.0; // Increased displacement
+                        vec3 displaced = position + animatedNormal * noise * 2.0;
                         gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
                     }
                 `,
                 fragmentShader: `
                     varying float noise;
                     void main() {
-                        float intensity = pow(0.7 - abs(noise), 2.5); // Sharper contrast
-                        gl_FragColor = vec4(0.98, 0.75, 0.25, intensity * 0.9); // More opaque
+                        float intensity = pow(0.7 - abs(noise), 2.5);
+                        gl_FragColor = vec4(0.98, 0.75, 0.25, intensity * 0.9);
                     }
                 `,
                 transparent: true,

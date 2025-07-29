@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DUST: The Duality Dial</title>
+    <title>DUST: The Duccion & The Duality Dial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
             background-color: #000000;
-            margin: 0;
             color: #E2E8F0;
+            margin: 0;
+            overflow: hidden;
+            cursor: grab;
+        }
+        body:active {
+            cursor: grabbing;
         }
         #canvas-container {
             position: fixed;
@@ -34,70 +41,151 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 3rem;
-            z-index: 10;
+            padding: 2rem;
+            pointer-events: none;
         }
-        .header {
-            text-align: center;
+        .header, .footer {
             width: 100%;
+            max-width: 800px;
+            text-align: center;
+            transition: opacity 1s ease-in-out;
         }
-        .footer {
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+        }
+        .static-equation-container {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            background-color: rgba(17, 24, 39, 0.7);
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            max-width: 550px; /* Match footer readout */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .static-equation-container:hover {
+            border-color: #FBBF24;
+            background-color: rgba(30, 41, 59, 0.7);
         }
         input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 4px;
-            background: #334155;
-            border-radius: 2px;
-            outline: none;
-            transition: background 0.3s ease;
+            -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+            background: #334155; border-radius: 2px; outline: none; pointer-events: auto;
         }
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 28px;
-            height: 28px;
-            background: #FBBF24;
-            cursor: pointer;
-            border-radius: 50%;
-            border: 4px solid #1E293B;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.7);
+            -webkit-appearance: none; appearance: none; width: 28px; height: 28px;
+            background: #FBBF24; cursor: pointer; border-radius: 50%;
+            border: 4px solid #1E293B; box-shadow: 0 0 15px rgba(251, 191, 36, 0.7);
         }
-        .state-label {
-            font-size: 1.5rem;
-            font-weight: 700;
-            transition: color 0.5s ease;
-        }
-        .info-panel {
+        .state-label { font-size: 1.5rem; font-weight: 700; transition: color 0.5s ease; }
+        .info-panel { margin-top: 0.5rem; color: #94A3B8; height: 40px; }
+
+        .energy-readout {
+            font-family: 'Roboto Mono', monospace;
+            background-color: rgba(17, 24, 39, 0.8);
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
             margin-top: 1rem;
-            color: #94A3B8;
-            height: 60px; /* Fixed height to prevent layout shifts */
+            width: 100%;
+            max-width: 550px;
+            cursor: help;
+            pointer-events: auto;
+        }
+        .energy-bar-container {
+            width: 100%; height: 10px; background-color: #334155;
+            border-radius: 5px; display: flex; overflow: hidden; margin-top: 1rem;
+        }
+        .energy-bar { height: 100%; transition: width 0.2s ease-out; }
+        .katex-display { font-size: 1.2em !important; }
+
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+            z-index: 40; display: none; opacity: 0; pointer-events: auto;
+        }
+        #modal-content {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%; max-width: 600px;
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border: 1px solid #FBBF24; border-radius: 1rem;
+            padding: 2rem; z-index: 50; display: none; opacity: 0; color: #CBD5E1;
+        }
+        #modal-close {
+            position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
+            color: #64748B; cursor: pointer; transition: color 0.2s ease;
+        }
+        #modal-close:hover { color: #FBBF24; }
+
+        @media (min-width: 768px) {
+            .header h1 { font-size: 4rem; }
+            .katex-display { font-size: 1.4em !important; }
+        }
+        .acronym {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #475569;
+            letter-spacing: 0.2em;
         }
     </style>
 </head>
 <body>
-
     <div id="canvas-container"></div>
     
     <div class="overlay">
-        <div class="header">
-            <h1 class="text-4xl md:text-5xl font-black">The Dial of Creation</h1>
-            <p class="text-lg md:text-xl text-slate-400 mt-2">DUST predicts that the state of reality is not fixed. It is a variable that can be controlled.</p>
+        <div id="header" class="header">
+            <!-- Header content changes dynamically -->
         </div>
 
-        <div class="footer">
+        <div id="footer" class="footer" style="opacity: 0;">
             <div class="state-label" id="state-label">Particle State</div>
-            <p class="info-panel" id="info-panel">A stable, low-energy state of localized matter. Its Duality ($D$) is 0.</p>
+            <p class="info-panel" id="info-panel">A stable, low-energy state of localized matter. Its Duality (D) is 0.</p>
+            
+            <div id="energy-readout" class="energy-readout">
+                <div id="dynamic-equation" class="text-center">
+                    <!-- This container will be dynamically updated by KaTeX -->
+                </div>
+                <div class="energy-bar-container">
+                    <div id="mass-bar" class="energy-bar bg-amber-500"></div>
+                    <div id="field-bar" class="energy-bar bg-blue-500"></div>
+                </div>
+            </div>
+
             <input type="range" id="duality-dial" min="0" max="1" value="0" step="0.001" class="mt-4">
         </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="modal-overlay"></div>
+    <div id="modal-content">
+        <div id="modal-close">&times;</div>
+        <h2 id="modal-title" class="text-3xl font-bold text-amber-400 mb-4"></h2>
+        <div id="modal-body"></div>
     </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- DUST Constants & Physics Calculations ---
+        const M_D_KG = 2.99e-31;
+        const C_LIGHT = 299792458;
+        const JOULES_TO_MEV = 6.242e12;
+        const E_TOTAL_MEV = (M_D_KG * C_LIGHT**2) * JOULES_TO_MEV;
+
+        const headerEl = document.getElementById('header');
+        const footerEl = document.getElementById('footer');
+
+        // --- Initial Header for Duccion Intro ---
+        headerEl.innerHTML = `
+            <h1 class="text-amber-400">The Duccion.</h1>
+            <div class="acronym">DUALITY'S UNIFIED COHERENT CONSTRUCT ION</div>
+            <h2 class="text-lg md:text-xl text-slate-400 mt-4">The single, fundamental particle from which all of reality is assembled.</h2>
+        `;
         
         // --- Basic Setup ---
         const scene = new THREE.Scene();
@@ -107,98 +195,178 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
-        camera.position.z = 10;
+        camera.position.z = 7;
 
         // --- Lighting ---
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        dirLight.position.set(5, 10, 7.5);
-        scene.add(dirLight);
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
 
-        // --- Particle & Wave Objects ---
-        // Particle (Solid Sphere)
-        const particleMat = new THREE.MeshStandardMaterial({ 
-            color: 0xFBBF24, 
-            emissive: 0x78350F, 
-            metalness: 0.9, 
-            roughness: 0.1 
-        });
+        // --- Scene 1: The Duccion Model ---
+        const duccionGroup = new THREE.Group();
+        scene.add(duccionGroup);
+        const coreGeometry = new THREE.IcosahedronGeometry(0.8, 5);
+        const coreMaterial = new THREE.MeshStandardMaterial({ color: 0xFBBF24, emissive: 0x92400E, metalness: 0.9, roughness: 0.1 });
+        const core = new THREE.Mesh(coreGeometry, coreMaterial);
+        duccionGroup.add(core);
+        const trailGroup = new THREE.Group();
+        const trailCount = 5;
+        for (let i = 0; i < trailCount; i++) {
+            const curvePoints = [];
+            for(let j = 0; j < 60; j++) {
+                const angle = (j / 59) * Math.PI * 4;
+                const radius = 1.5 + Math.sin(angle * (i + 2)) * 0.4;
+                curvePoints.push(new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle * 2.5 + i) * 0.7, Math.sin(angle) * radius));
+            }
+            const curve = new THREE.CatmullRomCurve3(curvePoints, true);
+            const tubeGeometry = new THREE.TubeGeometry(curve, 128, 0.02, 8, true);
+            const tubeMaterial = new THREE.MeshBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+            const trail = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            trail.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            trailGroup.add(trail);
+        }
+        duccionGroup.add(trailGroup);
+
+        // --- Scene 2: Duality Dial Model ---
+        const dialGroup = new THREE.Group();
+        dialGroup.visible = false;
+        scene.add(dialGroup);
+        const particleMat = new THREE.MeshStandardMaterial({ color: 0xFBBF24, emissive: 0x78350F, metalness: 0.9, roughness: 0.1, transparent: true });
         const particle = new THREE.Mesh(new THREE.SphereGeometry(2, 128, 128), particleMat);
-        scene.add(particle);
-
-        // Wave (Point Cloud)
+        dialGroup.add(particle);
         const waveGeo = new THREE.SphereGeometry(2, 64, 64);
-        const waveMat = new THREE.PointsMaterial({ 
-            color: 0x60A5FA, 
-            size: 0.05,
-            transparent: true,
-            opacity: 0
-        });
+        const waveMat = new THREE.PointsMaterial({ color: 0x60A5FA, size: 0.05, transparent: true, opacity: 0 });
         const wave = new THREE.Points(waveGeo, waveMat);
         wave.userData.originalPositions = waveGeo.attributes.position.clone();
-        scene.add(wave);
+        dialGroup.add(wave);
 
-        // --- UI Elements ---
+        // --- UI & INTERACTION ---
         const dial = document.getElementById('duality-dial');
         const stateLabel = document.getElementById('state-label');
         const infoPanel = document.getElementById('info-panel');
+        const dynamicEnergyEquationEl = document.getElementById('dynamic-equation');
+        const massBar = document.getElementById('mass-bar');
+        const fieldBar = document.getElementById('field-bar');
+        
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContent = document.getElementById('modal-content');
+        const modalClose = document.getElementById('modal-close');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
 
-        // --- Animation & Interaction Logic ---
         function updateState(dualityValue) {
             const d = parseFloat(dualityValue);
-
-            // Morph between states
             particleMat.opacity = 1 - d;
-            particleMat.transparent = d > 0;
             waveMat.opacity = d;
             
-            // Update Text
+            const massEnergy = E_TOTAL_MEV * (1 - d);
+            const fieldEnergy = E_TOTAL_MEV * d;
+
+            massBar.style.width = `${100 * (1-d)}%`;
+            fieldBar.style.width = `${100 * d}%`;
+
+            const equationHTML = `
+                <div class="mt-2 text-sm md:text-base">
+                   $ ${E_TOTAL_MEV.toFixed(3)} \\text{ MeV} = \\color{#FBBF24}{${massEnergy.toFixed(3)}} \\color{white}{+} \\color{#60A5FA}{${fieldEnergy.toFixed(3)}} $
+                </div>
+            `;
+            dynamicEnergyEquationEl.innerHTML = equationHTML;
+            renderMathInElement(dynamicEnergyEquationEl, { delimiters: [{left: "$", right: "$", display: false}] });
+
             if (d < 0.1) {
                 stateLabel.innerText = "Particle State";
                 stateLabel.style.color = "#FBBF24";
-                infoPanel.innerText = "A stable, low-energy state of localized matter. Its Duality (D) is 0.";
+                infoPanel.innerText = "A stable, low-energy state of localized matter (D=0). This is the source of rest mass.";
             } else if (d > 0.9) {
                 stateLabel.innerText = "Wave State";
                 stateLabel.style.color = "#60A5FA";
-                infoPanel.innerText = "An excited, high-energy state of pure potential. Its Duality (D) is 1.";
+                infoPanel.innerText = "An excited, high-energy state of pure potential (D=1). This is the source of wave-like behavior.";
             } else {
                 stateLabel.innerText = "Quantum Superposition";
                 stateLabel.style.color = "#E2E8F0";
                 infoPanel.innerText = `A hybrid state with a Duality (D) of ${d.toFixed(2)}.`;
             }
         }
-        
         dial.addEventListener('input', (e) => updateState(e.target.value));
+        updateState(0); 
 
+        // Modal Logic
+        const modalData = {
+            einstein: {
+                title: "Einstein's Unfinished Symphony",
+                body: `<p class="text-lg">For the last 30 years of his life, Albert Einstein searched for a "Unified Field Theory"—a single, complete equation to describe all of reality. He knew his famous equation, $E=mc^2$, was incomplete. It described a universe of static matter, but not the dynamic, wave-like nature of the quantum world.</p><p class="text-lg mt-4">The **DUST Complete Energy Equation** is the realization of his dream. It proves that $E=mc^2$ is a special case of a deeper reality where D=0. It unifies the mass-based world of Einstein with the field-based world of quantum mechanics, showing they are two sides of the same coin, governed by a single, unified law.</p>`
+            },
+            energy: {
+                title: "The Origin of Mass & Energy",
+                body: `<p class="text-lg">The total energy of a Duccion ($E_{total} \\approx 0.168$ MeV) is a fundamental constant of the universe, derived from the properties of the electron.</p><p class="text-lg mt-4"><strong class="text-amber-400">Mass Energy ($E_{mass}$):</strong> This is the energy of the particle's stable, coherent structure. It is the source of inertia and gravitational mass.</p><p class="text-lg mt-4"><strong class="text-blue-400">Field Energy ($E_{field}$):</strong> This is not lost. It is the energy expressed as a distributed, potential field. This field is the physical source of all wave-like properties, such as interference and diffraction.</p>`
+            }
+        };
+
+        function openModal(type) {
+            const data = modalData[type];
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = data.body;
+            renderMathInElement(modalBody, { delimiters: [{left: "$", right: "$", display: false}] });
+            modalOverlay.style.display = 'block';
+            modalContent.style.display = 'block';
+            gsap.to([modalOverlay, modalContent], { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' });
+        }
+        function closeModal() {
+            gsap.to([modalOverlay, modalContent], { 
+                opacity: 0, scale: 0.95, duration: 0.3, ease: 'power2.in',
+                onComplete: () => {
+                    modalOverlay.style.display = 'none';
+                    modalContent.style.display = 'none';
+                }
+            });
+        }
+        document.getElementById('energy-readout').addEventListener('click', () => openModal('energy'));
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal);
+
+        // --- GSAP Transition ---
+        const tl = gsap.timeline();
+        tl.to({}, { duration: 5 })
+          .to("#header", { opacity: 0, duration: 1.5, ease: "power2.in" })
+          .to(duccionGroup.scale, { x: 4, y: 4, z: 4, duration: 2, ease: "power2.inOut" }, "<")
+          .to(duccionGroup, { opacity: 0, duration: 1.5 }, "<")
+          .add(() => {
+              duccionGroup.visible = false;
+              dialGroup.visible = true;
+              headerEl.innerHTML = `<h1 class="text-amber-400">The Complete Energy Equation</h1><div id="static-equation" class="static-equation-container">$$ E_{\\text{total}} = m_0 c^2 (1-D) + m_0 c^2 (D) $$</div>`;
+              renderMathInElement(headerEl, { delimiters: [{left: "$$", right: "$$", display: true}] });
+              document.getElementById('static-equation').addEventListener('click', () => openModal('einstein'));
+          })
+          .to("#header", { opacity: 1, duration: 1.5 })
+          .to("#footer", { opacity: 1, duration: 1.5 }, "-=1");
+
+        // --- Render Loop ---
         const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
             
-            // Animate wave points
+            duccionGroup.rotation.y += 0.001;
+            
             const positions = wave.geometry.attributes.position.array;
             const originalPositions = wave.userData.originalPositions.array;
             for(let i=0; i < positions.length; i+=3) {
                 const x = originalPositions[i];
                 const y = originalPositions[i+1];
                 const z = originalPositions[i+2];
-                const displacement = Math.sin(x * 1.5 + elapsedTime) * Math.cos(y * 1.5 + elapsedTime) * 0.5;
+                const displacement = Math.sin(x * 1.5 + elapsedTime * 2) * Math.cos(y * 1.5 + elapsedTime * 2) * 0.5;
                 positions[i] = x * (1 + displacement);
                 positions[i+1] = y * (1 + displacement);
                 positions[i+2] = z * (1 + displacement);
             }
             wave.geometry.attributes.position.needsUpdate = true;
-            
             particle.rotation.y += 0.001;
             wave.rotation.y += 0.001;
 
             renderer.render(scene, camera);
         }
         animate();
-
-        // Initial animation
-        gsap.from(".header", { opacity: 0, y: -30, duration: 1.5, ease: "power2.out", delay: 0.5 });
-        gsap.from(".footer", { opacity: 0, y: 30, duration: 1.5, ease: "power2.out", delay: 1.0 });
 
         // --- Handle window resize ---
         window.addEventListener('resize', () => {
